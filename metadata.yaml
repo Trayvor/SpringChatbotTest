@@ -1,0 +1,11 @@
+---
+files:
+  - path: src/main/java/com/aws/spring/BotController.java
+    services:
+      - lex
+  - path: src/main/java/com/aws/spring/BotExample.java
+    services:
+      - lex
+  - path: src/main/java/com/aws/spring/LexService.java
+    services:
+      - lex

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+
+<head>
+    <title>Amazon Lex - Sample Application (BookTrip)</title>
+    <script th:src="|https://code.jquery.com/jquery-1.12.4.min.js|"></script>
+    <style language="text/css">
+        input#wisdom {
+            padding: 4px;
+            font-size: 1em;
+            width: 400px
+        }
+
+        input::placeholder {
+            color: #ccc;
+            font-style: italic;
+        }
+
+        p.userRequest {
+            margin: 4px;
+            padding: 4px 10px 4px 10px;
+            border-radius: 4px;
+            min-width: 50%;
+            max-width: 85%;
+            float: left;
+            background-color: #7d7;
+        }
+
+        p.lexResponse {
+            margin: 4px;
+            padding: 4px 10px 4px 10px;
+            border-radius: 4px;
+            text-align: right;
+            min-width: 50%;
+            max-width: 85%;
+            float: right;
+            background-color: #bbf;
+            font-style: italic;
+        }
+
+        p.lexError {
+            margin: 4px;
+            padding: 4px 10px 4px 10px;
+            border-radius: 4px;
+            text-align: right;
+            min-width: 50%;
+            max-width: 85%;
+            float: right;
+            background-color: #f77;
+        }
+    </style>
+</head>
+
+<body>
+<h1 style="text-align:  left">Amazon Lex - BookTrip</h1>
+<p style="width: 400px">
+    This multiple language chatbot shows you how easy it is to incorporate
+    <a href="https://aws.amazon.com/lex/" title="Amazon Lex (product)" target="_new">Amazon Lex</a> into your web apps.
+    Try it out.
+</p>
+<div id="conversation"
+     style="width: 400px; height: 400px; border: 1px solid #ccc; background-color: #eee; padding: 4px; overflow: scroll"></div>
+<input type="text" id="wisdom" size="80" value="I need a hotel room">
+<br>
+<button onclick="pushChat()">Send Text</button>
+
+<script type="text/javascript">
+
+    var g_text = "";
+    // set the focus to the input box
+    document.getElementById("wisdom").focus();
+
+    function pushChat() {
+
+        // if there is text to be sent...
+        var wisdomText = document.getElementById('wisdom');
+        if (wisdomText && wisdomText.value && wisdomText.value.trim().length > 0) {
+
+            // disable input to show we're sending it
+            var wisdom = wisdomText.value.trim();
+            wisdomText.value = '...';
+            wisdomText.locked = true;
+            handletext(wisdom);
+        }
+    }
+
+    function showRequest() {
+        var conversationDiv = document.getElementById('conversation');
+        var requestPara = document.createElement("P");
+        requestPara.className = 'userRequest';
+        requestPara.appendChild(document.createTextNode(g_text));
+        conversationDiv.appendChild(requestPara);
+        conversationDiv.scrollTop = conversationDiv.scrollHeight;
+    }
+
+    function showResponse(lexResponse) {
+
+        var conversationDiv = document.getElementById('conversation');
+        var responsePara = document.createElement("P");
+        responsePara.className = 'lexResponse';
+
+
+        var lexTextResponse = lexResponse;
+        responsePara.appendChild(document.createTextNode(lexTextResponse));
+        responsePara.appendChild(document.createElement('br'));
+        conversationDiv.appendChild(responsePara);
+        conversationDiv.scrollTop = conversationDiv.scrollHeight;
+    }
+
+    function handletext(text) {
+
+        g_text = text
+        $.ajax('/text', {
+            type: 'POST',
+            data: 'text=' + text,
+            success: function (data, status, xhr) {
+
+                showRequest();
+                showResponse(data);
+
+                // re-enable input
+                var wisdomText = document.getElementById('wisdom');
+                wisdomText.value = '';
+                wisdomText.locked = false;
+            },
+            error: function (jqXhr, textStatus, errorMessage) {
+                $('p').append('Error' + errorMessage);
+            }
+        });
+    }
+
+</script>
+</body>
+</html>
